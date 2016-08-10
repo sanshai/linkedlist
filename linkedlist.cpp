@@ -1,33 +1,30 @@
 #include <iostream>
 #include <stdio.h>
 
-template<class T>
-class KListNode
-{
-public:
-    KListNode();
-    T            m_Value;
-    KListNode    *m_pNext;
-};
-
-template<class T>
-KListNode<T> ::KListNode()
-{
-    m_pNext = NULL;
-}
-
 template <class T>
-class KList:private KListNode<T>
+class KList
 {
 public:
     KList();
     void            UnInit();
-    T               PopFront();
+    bool            PopFront(T &TempValue);
     bool            PushBack(T x);
     bool            IsEmpty();
     unsigned int    GetSize();
 
 private:
+    template<class T>
+    class KListNode
+    {
+    public:
+        KListNode()
+        {
+            m_pNext = NULL;
+        }
+        T            m_Value;
+        KListNode    *m_pNext;
+    };
+    bool            DeleteFront();
     unsigned int    m_uListLength;
     KListNode<T>    *m_LastNode;
     KListNode<T>    *m_HeadNode;
@@ -46,26 +43,36 @@ KList<T> ::KList()
 template <class T>
 void KList<T> ::UnInit()
 {
-    while (PopFront());
+    while (DeleteFront());
 }
 
 template <class T>
-T KList<T> ::PopFront()
+bool KList<T> ::DeleteFront()
 {
-    T        TempValue;
     KListNode<T> *TempNode = m_HeadNode;
     if (TempNode == NULL)
         return false;
     else
     {
-        TempValue  = TempNode->m_Value;
         m_HeadNode = TempNode->m_pNext;
         if (!TempNode->m_pNext)
             m_LastNode = NULL;
         delete TempNode;
         m_uListLength--;
-        return TempValue;
+        return true;
     }
+}
+
+template <class T>
+bool KList<T> ::PopFront(T &TempValue)
+{
+    if (!IsEmpty())
+    {
+        TempValue = m_HeadNode->m_Value;
+        return DeleteFront();
+    }
+    else
+        return false;
 }
 
 template <class T>
@@ -103,16 +110,5 @@ unsigned int KList<T> ::GetSize()
 
 int main()
 {
-    KList<int> TempAddr;
-    for (int i = 0; i < 10000000; ++i)
-    {
-        TempAddr.PushBack(123456789);
-    }
-    std::cout << TempAddr.PopFront();
-    TempAddr.UnInit();
-    std::cout << "\n" << TempAddr.GetSize();
-    std::cout << TempAddr.PopFront();
-    char a;
-    std::cin >> a;
     return 0;
 }
